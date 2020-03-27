@@ -1,6 +1,17 @@
 exports.getPosts = (req, res, next) => {
     res.status(200).json({
-        posts: [{ title: "The First post", content: "This is the first fucking post :)" }]
+        posts: [
+            {
+                _id: '1',
+                title: "The First post",
+                content: "This is the first fucking post :)",
+                imageUrl: 'images/download.png',
+                creator: {
+                    name: 'idris',
+                },
+                date: new Date().toISOString()
+            }
+        ]
     });
 };
 
