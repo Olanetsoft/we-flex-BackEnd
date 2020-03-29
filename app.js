@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
@@ -15,6 +16,10 @@ const MONGODB_URI = 'mongodb+srv://idris:Hayindehdb2019@cluster0-sszay.mongodb.n
 app.use(bodyParser.json()); // used for application/json
 
 
+//statically rendering/serving images folder
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
+
 //Setting CORS for request from any server
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -25,6 +30,17 @@ app.use((req, res, next) => {
 
 
 app.use('/feed/', feedRoutes);
+
+//this is a global error declaration when error hits
+app.use((error, req, res, next) => {
+    console.log(error);
+    const status = error.statusCode || 500;
+    const message = error.message;
+    res.status(status)
+    .json({
+        message: message
+    });
+});
 
 mongoose
   .connect(
