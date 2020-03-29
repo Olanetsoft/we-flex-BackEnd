@@ -7,7 +7,7 @@ const feedRoutes = require('./routes/feed')
 const app = express();
 
 
-const MONGODB_URI = 'mongodb+srv://idris:Hayindehdb2019@cluster0-sszay.mongodb.net/messages';
+const MONGODB_URI = 'mongodb+srv://idris:Hayindehdb2019@cluster0-sszay.mongodb.net/messages?retryWrites=true&w=majority';
 
 
 

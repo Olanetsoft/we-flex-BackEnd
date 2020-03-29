@@ -12,11 +12,11 @@ const postSchema = new Schema({
         required: true
     },
     content: {
-        type: Number,
+        type: String,
         required: true
     },
     creator: {
-        type: String,
+        type: Object,
         required: true
     }
 },
