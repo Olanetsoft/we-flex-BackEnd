@@ -32,12 +32,21 @@ exports.createPost = (req, res, next) => {
         error.statusCode = 422;
         throw error;
     }
+    //check if image not set
+    if(!req.file){
+        const error = new Error('No image provided');
+        error.statusCode = 422;
+        throw error;
+    }
+    //Then set the imageUrl
+    const imageUrl = req.file.path;
+
     const title = req.body.title;
     const content = req.body.content;
     const post = new Post({
         title: title,
         content: content,
-        imageUrl: 'images/download.png', 
+        imageUrl: imageUrl, 
         creator: { name: 'Idris' }
     });
     post

@@ -2,10 +2,35 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const multer = require('multer');
 
 const feedRoutes = require('./routes/feed')
 
 const app = express();
+
+//declare the file storage procedure
+const today = new Date();
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'images');
+    },
+    filename: (req, file, cb) => {
+        cb(null, today.getHours() + "-" + today.getMinutes() + "-" + today.getSeconds() + '-' + file.originalname);
+    }
+});
+
+//To filter the file type
+const fileFilter = (req, file, cb) => {
+    if (
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg' ||
+        file.mimetype === 'image/jpeg'
+    ) {
+        cb(null, true);
+    } else {
+        cb(null, false);
+    }
+};
 
 
 const MONGODB_URI = 'mongodb+srv://idris:Hayindehdb2019@cluster0-sszay.mongodb.net/messages?retryWrites=true&w=majority';
@@ -16,8 +41,18 @@ const MONGODB_URI = 'mongodb+srv://idris:Hayindehdb2019@cluster0-sszay.mongodb.n
 app.use(bodyParser.json()); // used for application/json
 
 
+//Initializing multer
+app.use(
+    multer({ storage: fileStorage, fileFilter: fileFilter }).single('image')
+);
+
+
+
 //statically rendering/serving images folder
 app.use('/images', express.static(path.join(__dirname, 'images')));
+
+
+
 
 
 //Setting CORS for request from any server
@@ -37,18 +72,18 @@ app.use((error, req, res, next) => {
     const status = error.statusCode || 500;
     const message = error.message;
     res.status(status)
-    .json({
-        message: message
-    });
+        .json({
+            message: message
+        });
 });
 
 mongoose
-  .connect(
-    MONGODB_URI
-  )
-  .then(result => {
-    app.listen(8080);
-  })
-  .catch(err => {
-    console.log(err);
-  });
+    .connect(
+        MONGODB_URI
+    )
+    .then(result => {
+        app.listen(8080);
+    })
+    .catch(err => {
+        console.log(err);
+    });
