@@ -3,6 +3,8 @@ const { validationResult } = require('express-validator');
 //importing post model
 const Post = require('../models/post');
 
+
+//gets all posts
 exports.getPosts = (req, res, next) => {
     Post.find()
     .then(posts => {
@@ -35,7 +37,7 @@ exports.createPost = (req, res, next) => {
     const post = new Post({
         title: title,
         content: content,
-        imageUrl: 'images/download.png',
+        imageUrl: 'images/download.png', 
         creator: { name: 'Idris' }
     });
     post
