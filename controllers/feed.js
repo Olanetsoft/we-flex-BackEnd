@@ -7,19 +7,19 @@ const Post = require('../models/post');
 //gets all posts
 exports.getPosts = (req, res, next) => {
     Post.find()
-    .then(posts => {
-        res.status(200)
-        .json({
-            message: 'Fetched Post successfully',
-            posts: posts
+        .then(posts => {
+            res.status(200)
+                .json({
+                    message: 'Fetched Post successfully',
+                    posts: posts
+                })
         })
-    })
-    .catch(err => {
-        if (!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    });
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 
@@ -33,7 +33,7 @@ exports.createPost = (req, res, next) => {
         throw error;
     }
     //check if image not set
-    if(!req.file){
+    if (!req.file) {
         const error = new Error('No image provided');
         error.statusCode = 422;
         throw error;
@@ -46,7 +46,7 @@ exports.createPost = (req, res, next) => {
     const post = new Post({
         title: title,
         content: content,
-        imageUrl: imageUrl, 
+        imageUrl: imageUrl,
         creator: { name: 'Idris' }
     });
     post
@@ -64,6 +64,7 @@ exports.createPost = (req, res, next) => {
             next(err);
         });
 };
+
 
 //get post by ID
 exports.getPost = (req, res, next) => {
