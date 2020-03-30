@@ -9,12 +9,23 @@ const Post = require('../models/post');
 
 //gets all posts
 exports.getPosts = (req, res, next) => {
+    const currentPage = req.query.page || 1;
+    const perPage = 2;
+    let totalItems;
     Post.find()
+        .countDocuments()
+        .then(count => {
+            totalItems = count;
+            return Post.find()
+                .skip((currentPage - 1) * perPage)
+                .limit(perPage);
+        })
         .then(posts => {
             res.status(200)
                 .json({
                     message: 'Fetched Post successfully',
-                    posts: posts
+                    posts: posts,
+                    totalItems: totalItems
                 })
         })
         .catch(err => {
@@ -154,27 +165,27 @@ exports.updatePost = (req, res, next) => {
 exports.deletePost = (req, res, next) => {
     const postId = req.params.postId;
     Post.findById(postId)
-    .then(post => {
-        if (!post) {
-            const error = new Error('could not find post');
-            error.statusCode = 400;
-            throw error;
-        }
+        .then(post => {
+            if (!post) {
+                const error = new Error('could not find post');
+                error.statusCode = 400;
+                throw error;
+            }
 
-        //check logged in user
-        clearImage(post.imageUrl);
-        return Post.findByIdAndRemove(postId);
-    })
-    .then(result => {
-        console.log(result);
-        res.status(200).json({ message: 'Post Deleted !' });
-    })
-    .catch(err => {
-        if (!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    });
+            //check logged in user
+            clearImage(post.imageUrl);
+            return Post.findByIdAndRemove(postId);
+        })
+        .then(result => {
+            console.log(result);
+            res.status(200).json({ message: 'Post Deleted !' });
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 };
 
 //helper function to clear the image from the path
