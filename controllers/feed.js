@@ -194,7 +194,7 @@ exports.deletePost = (req, res, next) => {
                 throw error;
             }
 
-            //check logged in user
+            //checking logged in user
              //to check if the user is the post creator before deleting
              if(post.creator.toString() !== req.userId){
                 const error = new Error('Not authorized !');
@@ -204,6 +204,13 @@ exports.deletePost = (req, res, next) => {
             clearImage(post.imageUrl);
             return Post.findByIdAndRemove(postId);
         })
+        .then(result => {
+            return User.findById(req.userId);
+          })
+          .then(user => {
+            user.posts.pull(postId);//in this section mongoose provides pull method so i used it to remove the post from the user when deleted 
+            return user.save();
+          })
         .then(result => {
             console.log(result);
             res.status(200).json({ message: 'Post Deleted !' });
@@ -215,6 +222,7 @@ exports.deletePost = (req, res, next) => {
             next(err);
         });
 };
+
 
 //helper function to clear the image from the path
 const clearImage = filePath => {
