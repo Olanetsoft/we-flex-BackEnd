@@ -12,6 +12,7 @@ router.get('/posts', isAuth, feedController.getPosts);
 
 //POST /feed/post
 router.post('/post',
+isAuth, 
     [
         body('title')
             .trim()
@@ -24,10 +25,10 @@ router.post('/post',
 
 
 //GET /feed /post
-router.get('/post/:postId', feedController.getPost);
+router.get('/post/:postId', isAuth,  feedController.getPost);
 
 //PUT /feed/post
-router.put('/post/:postId', [
+router.put('/post/:postId', isAuth,  [
     body('title')
         .trim()
         .isLength({ min: 5 }),
@@ -38,6 +39,6 @@ router.put('/post/:postId', [
 
 
 //DELETE /feed /post
-router.delete('/post/:postId', feedController.deletePost);
+router.delete('/post/:postId', isAuth,  feedController.deletePost);
 
 module.exports = router;
