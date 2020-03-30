@@ -155,6 +155,13 @@ exports.updatePost = (req, res, next) => {
                 error.statusCode = 404;
                 throw error;
             }
+            //to check if the user is the post creator
+            if(post.creator.toString() !== req.userId){
+                const error = new Error('Not authorized !');
+                error.statusCode = 403;
+                throw error;
+            }
+
             if (imageUrl !== post.imageUrl) {
                 clearImage(post.imageUrl);
             }
@@ -188,6 +195,12 @@ exports.deletePost = (req, res, next) => {
             }
 
             //check logged in user
+             //to check if the user is the post creator before deleting
+             if(post.creator.toString() !== req.userId){
+                const error = new Error('Not authorized !');
+                error.statusCode = 403;
+                throw error;
+            }
             clearImage(post.imageUrl);
             return Post.findByIdAndRemove(postId);
         })
