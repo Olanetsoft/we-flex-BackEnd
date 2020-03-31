@@ -253,6 +253,12 @@ exports.deletePost = (req, res, next) => {
             return user.save();
         })
         .then(result => {
+             //This informs other user before sending the status with the help os socket.io
+             io.getIO()
+             .emit('posts', {
+                 action: 'delete',
+                 post: postId
+             })//send message to all users
             console.log(result);
             res.status(200).json({ message: 'Post Deleted !' });
         })
