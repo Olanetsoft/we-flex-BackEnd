@@ -50,7 +50,7 @@ exports.signUp = (req, res, next) => {
 
 };
 
-
+//logs  user in
 exports.login = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -73,7 +73,7 @@ exports.login = (req, res, next) => {
                 throw error;
             }
             const token = jwt.sign({
-                email: loadedUser.email,
+                email: loadedUser.email, 
                 userId: loadedUser._id.toString()
             },
                 'somesupersecretsecret',//can be as long as possible
