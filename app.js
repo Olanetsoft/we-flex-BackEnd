@@ -88,7 +88,7 @@ mongoose
     .then(result => {
         const server = app.listen(8080);
         //Setup/Establish socket.io connection
-        const io = require('socket.io')(server);
+        const io = require('./socket').init(server);
         //Now lets use it to define event listeners
         io.on('connection', socket => {
             console.log('React Client Connected')
