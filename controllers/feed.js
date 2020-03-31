@@ -50,21 +50,22 @@ exports.getPosts = async (req, res, next) => {
     const currentPage = req.query.page || 1;
     const perPage = 2;
     try {
-      const totalItems = await Post.find().countDocuments();
-      const posts = await Post.find()
-        .skip((currentPage - 1) * perPage)
-        .limit(perPage);
-  
-      res.status(200).json({
-        message: 'Fetched posts successfully.',
-        posts: posts,
-        totalItems: totalItems
-      });
+        const totalItems = await Post.find().countDocuments();
+        const posts = await Post.find()
+            .populate('creator')//to also populate the full object for that creator
+            .skip((currentPage - 1) * perPage)
+            .limit(perPage);
+
+        res.status(200).json({
+            message: 'Fetched posts successfully.',
+            posts: posts,
+            totalItems: totalItems
+        });
     } catch (error) {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
     }
 };
 
@@ -101,20 +102,23 @@ exports.createPost = (req, res, next) => {
         .then(result => {
             return User.findById(req.userId);
         })
-        .then(user=> {
+        .then(user => {
             creator = user;
             user.posts.push(post);
             return user.save();
-           
+
         })
         .then(result => {
             //This informs other user before sending the status with the help os socket.io
             io.getIO()
-            .emit('posts', {action: 'create', post: post })//send message to all users
+                .emit('posts', {
+                    action: 'create',
+                    post: { ...post._doc, creator: { _id: req.userId, name: result.name } }
+                })//send message to all users
             res.status(201).json({
                 message: 'Post created successfully!',
                 post: post,
-                creator: {_id: creator._id, name: creator.name}
+                creator: { _id: creator._id, name: creator.name }
             });
         })
         .catch(err => {
@@ -180,6 +184,7 @@ exports.updatePost = (req, res, next) => {
     };
 
     Post.findById(extractedFromTheUrl)
+        .populate('creator')
         .then(post => {
             if (!post) {
                 const error = new Error('Could not find post.');
@@ -187,7 +192,7 @@ exports.updatePost = (req, res, next) => {
                 throw error;
             }
             //to check if the user is the post creator
-            if(post.creator.toString() !== req.userId){
+            if (post.creator._id.toString() !== req.userId) {
                 const error = new Error('Not authorized !');
                 error.statusCode = 403;
                 throw error;
@@ -202,6 +207,10 @@ exports.updatePost = (req, res, next) => {
             return post.save();
         })
         .then(result => {
+            //updating posts on all connected clients
+            io.getIO()
+            .emit('posts', {action: 'update', post: result});
+
             res.status(200).json({ message: 'Post updated!', post: result });
         })
         .catch(err => {
@@ -226,8 +235,8 @@ exports.deletePost = (req, res, next) => {
             }
 
             //checking logged in user
-             //to check if the user is the post creator before deleting
-             if(post.creator.toString() !== req.userId){
+            //to check if the user is the post creator before deleting
+            if (post.creator.toString() !== req.userId) {
                 const error = new Error('Not authorized !');
                 error.statusCode = 403;
                 throw error;
@@ -237,11 +246,11 @@ exports.deletePost = (req, res, next) => {
         })
         .then(result => {
             return User.findById(req.userId);
-          })
-          .then(user => {
+        })
+        .then(user => {
             user.posts.pull(postId);//in this section mongoose provides pull method so i used it to remove the post from the user when deleted 
             return user.save();
-          })
+        })
         .then(result => {
             console.log(result);
             res.status(200).json({ message: 'Post Deleted !' });
