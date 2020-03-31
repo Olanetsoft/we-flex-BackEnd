@@ -3,6 +3,10 @@ const path = require('path');
 
 const { validationResult } = require('express-validator');
 
+
+//importing io
+const io = require('../socket');
+
 //importing post model
 const Post = require('../models/post');
 
@@ -104,6 +108,9 @@ exports.createPost = (req, res, next) => {
            
         })
         .then(result => {
+            //This informs other user before sending the status with the help os socket.io
+            io.getIO()
+            .emit('posts', {action: 'create', post: post })//send message to all users
             res.status(201).json({
                 message: 'Post created successfully!',
                 post: post,
