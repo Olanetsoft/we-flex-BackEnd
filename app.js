@@ -3,9 +3,19 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const multer = require('multer');
+const helmet = require('helmet'); 
+const compression = require('compression');
+
 
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
+
+
+//using helmet to secure response
+app.use(helmet());
+
+//using compression
+app.use(compression());
 
 const app = express();
 
@@ -34,7 +44,7 @@ const fileFilter = (req, file, cb) => {
 };
 
 
-const MONGODB_URI = 'mongodb+srv://idris:Hayindehdb2019@cluster0-sszay.mongodb.net/messages?retryWrites=true&w=majority';
+const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-sszay.mongodb.net/${process.env.MONGO_DEFAULT_DB}?retryWrites=true&w=majority`;
 
 
 
@@ -67,6 +77,7 @@ app.use((req, res, next) => {
 
 app.use('/feed', feedRoutes);
 app.use('/auth', authRoutes);
+
 
 //this is a global error declaration when error hits
 app.use((error, req, res, next) => {
