@@ -99,7 +99,7 @@ mongoose
         MONGODB_URI
     )
     .then(result => {
-        const server = app.listen(8080);
+        const server =  app.listen(process.env.PORT || 3000);;
         //Setup/Establish socket.io connection
         const io = require('./socket').init(server);
         //Now lets use it to define event listeners
