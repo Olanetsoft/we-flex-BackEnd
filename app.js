@@ -10,6 +10,8 @@ const compression = require('compression');
 const feedRoutes = require('./routes/feed');
 const authRoutes = require('./routes/auth');
 
+const app = express();
+
 
 //using helmet to secure response
 app.use(helmet());
@@ -17,7 +19,7 @@ app.use(helmet());
 //using compression
 app.use(compression());
 
-const app = express();
+
 
 //declare the file storage procedure
 const today = new Date();
